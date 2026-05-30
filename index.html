@@ -115,19 +115,22 @@
             font-size: 14px;
         }
 
-        /* ==================== MOBILE RESPONSIVE FIX ==================== */
+        /* ==================== STRONG MOBILE FIX ==================== */
         @media (max-width: 768px) {
-            body { padding: 10px; }
-            .sheet { padding: 15px; border-width: 8px; }
-            .header { font-size: 28px; margin-bottom: 15px; }
-            .grid { grid-template-columns: 1fr; gap: 15px; }
-            .section { padding: 12px; }
-            .title { font-size: 17px; padding: 8px 12px; }
-            .weapon-grid { grid-template-columns: 1fr; }
+            body { padding: 8px; }
+            .sheet { padding: 12px; border-width: 6px; max-width: 100%; }
+            .header { font-size: 26px; padding-bottom: 10px; margin-bottom: 15px; }
+            .grid { grid-template-columns: 1fr !important; gap: 12px; }
+            .section { padding: 10px; }
+            .title { font-size: 17px; padding: 8px; margin: -10px -10px 10px; }
+            .weapon-grid { grid-template-columns: 1fr !important; }
             table { font-size: 13px; }
-            .log { height: 280px; font-size: 13px; }
-            input, select, button, textarea { font-size: 16px; padding: 10px; }
-            .dice-pool { font-size: 22px; }
+            th, td { padding: 5px; }
+            .log { height: 260px; font-size: 13px; }
+            input, select, textarea, button { font-size: 16px; padding: 10px; }
+            .dice-pool { font-size: 20px; }
+            .stat-box { font-size: 16px; }
+            select[size="10"] { height: 160px; }
         }
     </style>
 <link rel="manifest" href="manifest.json">
@@ -297,7 +300,7 @@
         </div>
     </div>
     <script>
-        // WEAPON DATABASE (unchanged)
+        // ALL YOUR ORIGINAL SCRIPT CODE (100% UNCHANGED)
         const meleeWeapons = [
             {name:"Axe", range:"Close", dmg:"S", hand:"1H/2H", traits:"+1 DMG vs Armour"},
             {name:"Sword", range:"Close", dmg:"S", hand:"1H", traits:"+1d Defence"},
@@ -350,7 +353,7 @@
             let selId = type === 'melee' ? 'melee-select' : type === 'ranged' ? 'ranged-select' : 'throw-select';
             let sel = document.getElementById(selId);
             if (!sel.value) return;
-    
+   
             const weapon = JSON.parse(sel.value);
             equippedWeapons.push(weapon);
             const tbody = document.getElementById('weapons-table').getElementsByTagName('tbody')[0];
@@ -513,7 +516,7 @@
             }
             const strength = parseInt(document.getElementById('s').value) || 4;
             const weaponDmg = getWeaponDamage(weapon, grip);
-       
+      
             let damage = 0;
             if (attackType === "melee") {
                 damage = successes > 0 ? (strength + weaponDmg + successes) : 0;
@@ -561,7 +564,7 @@
                 return;
             }
             const data = JSON.parse(saved);
-         
+        
             document.getElementById('name').value = data.name || "Thrain Stonehelm";
             if (data.ws !== undefined) document.getElementById('ws').value = data.ws;
             if (data.bs !== undefined) document.getElementById('bs').value = data.bs;
@@ -572,7 +575,6 @@
             if (data.re !== undefined) document.getElementById('re').value = data.re;
             if (data.fel !== undefined) document.getElementById('fel').value = data.fel;
             if (data.fate !== undefined) document.getElementById('fate').value = data.fate;
-
             document.getElementById('talents').innerHTML = '';
             if (data.talents && data.talents.length) {
                 data.talents.forEach(t => {
@@ -587,7 +589,6 @@
             equippedArmour = data.equippedArmour || {name: "No Armour", bonus: 0};
             equippedShield = data.equippedShield || 0;
             equippedWeapons = data.equippedWeapons || [];
-
             const tbody = document.getElementById('weapons-table').getElementsByTagName('tbody')[0];
             tbody.innerHTML = '';
             equippedWeapons.forEach(weapon => {
@@ -601,7 +602,6 @@
                     <td><button onclick="this.parentElement.parentElement.remove()">Unequip</button></td>
                 `;
             });
-
             updateResilience();
             renderContacts();
             renderAssets();
