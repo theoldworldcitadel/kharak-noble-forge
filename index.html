@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>⚒️ KHARAK-NOBLE FORGE ⚒️</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Cinzel:wght@400;700&display=swap');
@@ -114,6 +114,21 @@
             height: 220px;
             font-size: 14px;
         }
+
+        /* ==================== MOBILE RESPONSIVE FIX ==================== */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .sheet { padding: 15px; border-width: 8px; }
+            .header { font-size: 28px; margin-bottom: 15px; }
+            .grid { grid-template-columns: 1fr; gap: 15px; }
+            .section { padding: 12px; }
+            .title { font-size: 17px; padding: 8px 12px; }
+            .weapon-grid { grid-template-columns: 1fr; }
+            table { font-size: 13px; }
+            .log { height: 280px; font-size: 13px; }
+            input, select, button, textarea { font-size: 16px; padding: 10px; }
+            .dice-pool { font-size: 22px; }
+        }
     </style>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#d4af37">
@@ -122,7 +137,6 @@
 <body>
     <div class="sheet">
         <div class="header">⚒️ KHARAK-NOBLE FORGE ⚒️<br><small>Dwarf Noble • Talagaad • Warhammer: The Old World RPG</small></div>
- 
         <div class="grid">
             <!-- HEADER INFO -->
             <div class="section" style="grid-column: span 12;">
@@ -282,7 +296,6 @@
             </div>
         </div>
     </div>
-
     <script>
         // WEAPON DATABASE (unchanged)
         const meleeWeapons = [
@@ -337,7 +350,7 @@
             let selId = type === 'melee' ? 'melee-select' : type === 'ranged' ? 'ranged-select' : 'throw-select';
             let sel = document.getElementById(selId);
             if (!sel.value) return;
-     
+    
             const weapon = JSON.parse(sel.value);
             equippedWeapons.push(weapon);
             const tbody = document.getElementById('weapons-table').getElementsByTagName('tbody')[0];
@@ -452,10 +465,8 @@
                 const el = document.getElementById(stat + '-pool');
                 if (el) el.textContent = val + 'd';
             });
-            // ONLY ADDITION: Trigger resilience when T changes
             updateResilience();
         }
-        // NEW: Parse weapon damage based on grip
         function getWeaponDamage(weapon, grip) {
             if (!weapon.dmg) return 0;
             const dmgStr = weapon.dmg.toString();
@@ -502,13 +513,11 @@
             }
             const strength = parseInt(document.getElementById('s').value) || 4;
             const weaponDmg = getWeaponDamage(weapon, grip);
-        
-            // Ranged weapons use fixed weapon damage (no Strength)
+       
             let damage = 0;
             if (attackType === "melee") {
                 damage = successes > 0 ? (strength + weaponDmg + successes) : 0;
             } else {
-                // Ranged / Throwing: Weapon damage + successes
                 damage = successes > 0 ? (weaponDmg + successes) : 0;
             }
             const typeName = attackType === "melee" ? "Melee (WS)" : attackType === "ranged" ? "Ranged (BS)" : "Throwing";
@@ -523,7 +532,6 @@
             logEl.innerHTML += `<div>${new Date().toLocaleTimeString()} — ${name}: ${msg}</div>`;
             logEl.scrollTop = logEl.scrollHeight;
         }
-        // ==================== FIXED SAVE & LOAD (Toughness + Armour linkage) ====================
         function saveCharacter() {
             const data = {
                 name: document.getElementById('name').value,
@@ -553,8 +561,7 @@
                 return;
             }
             const data = JSON.parse(saved);
-          
-            // Load stats
+         
             document.getElementById('name').value = data.name || "Thrain Stonehelm";
             if (data.ws !== undefined) document.getElementById('ws').value = data.ws;
             if (data.bs !== undefined) document.getElementById('bs').value = data.bs;
@@ -566,7 +573,6 @@
             if (data.fel !== undefined) document.getElementById('fel').value = data.fel;
             if (data.fate !== undefined) document.getElementById('fate').value = data.fate;
 
-            // Load talents
             document.getElementById('talents').innerHTML = '';
             if (data.talents && data.talents.length) {
                 data.talents.forEach(t => {
@@ -576,14 +582,12 @@
                     document.getElementById('talents').appendChild(div);
                 });
             }
-
             contacts = data.contacts || [];
             assets = data.assets || [];
             equippedArmour = data.equippedArmour || {name: "No Armour", bonus: 0};
             equippedShield = data.equippedShield || 0;
             equippedWeapons = data.equippedWeapons || [];
 
-            // Rebuild weapons table
             const tbody = document.getElementById('weapons-table').getElementsByTagName('tbody')[0];
             tbody.innerHTML = '';
             equippedWeapons.forEach(weapon => {
@@ -598,7 +602,6 @@
                 `;
             });
 
-            // Force resilience update after T and armour are loaded
             updateResilience();
             renderContacts();
             renderAssets();
