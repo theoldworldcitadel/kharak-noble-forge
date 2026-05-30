@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚒️ KHARAK-NOBLE FORGE ⚒️</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Cinzel:wght@400;700&display=swap');
+        body {
+            font-family: 'Cinzel', serif;
+            background: #1a1209 url('https://via.placeholder.com/1920x1080/2c1f0f/8b5a2b?text=DWARF+STONE+FORGE') center/cover;
+            color: #e8d5a3;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.4;
+        }
+        .sheet {
+            max-width: 1280px;
+            margin: 0 auto;
+            background: #3c2f1f;
+            border: 12px solid #8b5a2b;
+            box-shadow: 0 0 40px #000 inset, 0 0 60px #d4af37;
+            padding: 25px;
+            position: relative;
+        }
+        .header {
+            text-align: center;
+            font-family: 'UnifrakturCook', cursive;
+            font-size: 42px;
+            color: #d4af37;
+            text-shadow: 3px 3px #000;
+            border-bottom: 4px double #d4af37;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 18px;
+        }
+        .section {
+            background: #2c2218;
+            border: 3px solid #8b5a2b;
+            padding: 15px;
+        }
+        .title {
+            background: #1a1209;
+            color: #d4af37;
+            padding: 8px 15px;
+            font-size: 19px;
+            text-align: center;
+            border-bottom: 2px solid #d4af37;
+            margin: -15px -15px 15px;
+        }
+        input, select, textarea {
+            background: #1a1209;
+            border: 2px solid #8b5a2b;
+            color: #e8d5a3;
+            width: 100%;
+            padding: 7px;
+            font-family: inherit;
+        }
+        button {
+            background: #8b5a2b;
+            color: #1a1209;
+            border: none;
+            padding: 9px 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        button:hover {
+            background: #d4af37;
+            transform: scale(1.05);
+        }
+        .stat-box { text-align: center; font-size: 18px; font-weight: bold; }
+        .dice-pool { font-size: 26px; color: #ffcc00; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #8b5a2b; padding: 6px; text-align: left; }
+        .log {
+            background: #0f0a05;
+            height: 420px;
+            overflow-y: auto;
+            padding: 12px;
+            font-size: 14px;
+            border: 2px solid #8b5a2b;
+        }
+        .equipped, .contact-item, .asset-item, .talent-item {
+            background: #1a1209;
+            padding: 8px;
+            margin: 6px 0;
+            border-left: 4px solid #d4af37;
+        }
+        .trait { font-size: 0.9em; color: #ffcc88; }
+        .modifier {
+            display: inline-block;
+            background: #1a1209;
+            padding: 4px 10px;
+            margin: 3px;
+            border: 1px solid #d4af37;
+        }
+        .weapon-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .weapon-box {
+            background: #1a1209;
+            border: 2px solid #8b5a2b;
+            padding: 8px;
+        }
+        .weapon-box select {
+            height: 220px;
+            font-size: 14px;
+        }
+    </style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#d4af37">
+<link rel="apple-touch-icon" href="icon-512.png">
+</head>
+<body>
+    <div class="sheet">
+        <div class="header">⚒️ KHARAK-NOBLE FORGE ⚒️<br><small>Dwarf Noble • Talagaad • Warhammer: The Old World RPG</small></div>
+ 
+        <div class="grid">
+            <!-- HEADER INFO -->
+            <div class="section" style="grid-column: span 12;">
+                <div class="title">CLAN & IDENTITY</div>
+                <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px;">
+                    <div>Name: <input id="name" value="Thrain Stonehelm" oninput="updateNameDisplay()"></div>
+                    <div>Origin: <select><option selected>Dwarf (Mountain Holds)</option></select></div>
+                    <div>Career: <strong style="color:#d4af37;">NOBLE</strong></div>
+                    <div>Fate: <input id="fate" type="number" value="2" min="0" max="3"> <button onclick="rekindleFate()">Rekindle</button></div>
+                    <div>Status: <strong>GOLD</strong></div>
+                </div>
+                <!-- SAVE / LOAD BUTTONS ADDED HERE ONLY -->
+                <div style="margin-top:12px; text-align:center;">
+                    <button onclick="saveCharacter()" style="background:#d4af37; color:#1a1209; padding:8px 16px; margin:0 8px;">💾 SAVE CHARACTER</button>
+                    <button onclick="loadCharacter()" style="background:#d4af37; color:#1a1209; padding:8px 16px; margin:0 8px;">📂 LOAD CHARACTER</button>
+                </div>
+            </div>
+            <!-- CHARACTERISTICS -->
+            <div class="section" style="grid-column: span 5;">
+                <div class="title">CHARACTERISTICS & SKILLS</div>
+                <table>
+                    <tr><td><strong>WS</strong></td><td><input id="ws" type="number" value="4" class="stat-box" onchange="updateAll()"></td><td><span class="dice-pool" id="ws-pool">4d</span></td><td>Melee <input type="number" value="3"></td><td>Defence <input type="number" value="3"></td></tr>
+                    <tr><td><strong>BS</strong></td><td><input id="bs" type="number" value="3" class="stat-box" onchange="updateAll()"></td><td><span class="dice-pool" id="bs-pool">3d</span></td><td>Shooting <input type="number" value="2"></td><td>Throwing <input type="number" value="2"></td></tr>
+                    <tr><td><strong>S</strong></td><td><input id="s" type="number" value="4" class="stat-box" onchange="updateAll()"></td><td><span class="dice-pool" id="s-pool">4d</span></td><td>Brawn <input type="number" value="3"></td><td>Toil <input type="number" value="4"></td></tr>
+                    <tr><td><strong>T</strong></td><td><input id="t" type="number" value="5" class="stat-box" onchange="updateAll()"></td><td><span class="dice-pool" id="t-pool">5d</span></td><td>Survival <input type="number" value="3"></td><td>Endurance <input type="number" value="4"></td></tr>
+                    <tr><td><strong>I</strong></td><td><input id="i" type="number" value="3" class="stat-box" onchange="updateAll()"></td><td><span class="dice-pool" id="i-pool">3d</span></td><td>Awareness <input type="number" value="3"></td><td>Dexterity <input type="number" value="2"></td></tr>
+                    <tr><td><strong>Ag</strong></td><td><input id="ag" type="number" value="2" class="stat-box" onchange="updateAll()"></td><td><span class="dice-pool" id="ag-pool">2d</span></td><td>Athletics <input type="number" value="2"></td><td>Stealth <input type="number" value="1"></td></tr>
+                    <tr><td><strong>Re</strong></td><td><input id="re" type="number" value="4" class="stat-box" onchange="updateAll()"></td><td><span class="dice-pool" id="re-pool">4d</span></td><td>Willpower <input type="number" value="4"></td><td>Recall <input type="number" value="3"></td></tr>
+                    <tr><td><strong>Fel</strong></td><td><input id="fel" type="number" value="3" class="stat-box" onchange="updateAll()"></td><td><span class="dice-pool" id="fel-pool">3d</span></td><td>Leadership <input type="number" value="4"></td><td>Charm <input type="number" value="3"></td></tr>
+                </table>
+            </div>
+            <!-- RIGHT PANEL -->
+            <div class="section" style="grid-column: span 4;">
+                <div class="title">RESOURCES & LORE</div>
+                <div>Coin — Brass: <input type="number" value="0"> Silver: <input type="number" value="15"> Gold: <input type="number" value="12"></div>
+                <div><strong>Resilience:</strong> <span id="resilience">8</span> (T + Armour)</div>
+                <hr>
+                <select id="lore-select"><option>Lore: Dwarf Mountain Holds (Khazalid)</option><option>Lore: Heraldry</option><option>Lore: The Empire (Talagaad)</option></select>
+                <button onclick="addTalent()">Add Talent</button>
+                <div id="talents" style="margin-top:10px;"></div>
+            </div>
+            <div class="section" style="grid-column: span 3;">
+                <div class="title">APPEARANCE & GRIM PORTENT</div>
+                <textarea id="appearance" rows="5">Proud, gold-ringed beard. Ancestral Gromril armour. Eyes burning with ancient grudges.</textarea>
+                <textarea id="grim" rows="4">Your clan’s ancient grudge against a treacherous Imperial merchant house in Talagaad must be avenged in blood and gold.</textarea>
+            </div>
+            <!-- CONTACTS & ASSETS -->
+            <div class="section" style="grid-column: span 12;">
+                <div class="title">📜 CONTACTS & ASSETS IN TALAGAAD 📜</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <strong>Contacts (Full Player's Guide List)</strong><br>
+                        <select id="contact-select" style="width:100%; margin-bottom:8px;">
+                            <option value="Karoline von Kassel - Baroness of Hermsdorf">Karoline von Kassel - Baroness of Hermsdorf</option>
+                            <option value="Giselbert Almayda - Scholarly Magician">Giselbert Almayda - Scholarly Magician</option>
+                            <option value="Ambrosia Waxwing - Halfling Librarian">Ambrosia Waxwing - Halfling Librarian</option>
+                            <option value="Eascylla Sereth - High Elf Embassy Head">Eascylla Sereth - High Elf Embassy Head</option>
+                            <option value="Horst von Schmettoch - Exiled Noble">Horst von Schmettoch - Exiled Noble Scion</option>
+                            <option value="Hunter Lord Leonard van Obelmann">Hunter Lord Leonard van Obelmann</option>
+                            <option value="Lieutenant Danya Klossner">Lieutenant Danya Klossner</option>
+                            <option value="Manfreda Skovgaard - Warrior Priest of Ulric">Manfreda Skovgaard - Warrior Priest of Ulric</option>
+                            <option value="Cox Flummery - Halfling Bounder">Cox Flummery - Halfling Bounder</option>
+                            <option value="Rosamunde Nemevich - Deserter">Rosamunde Nemevich - Deserter</option>
+                            <option value="Yury Kagan - Kislevite Elder">Yury Kagan - Kislevite Elder</option>
+                            <option value="Amelinda Hertwier - Priestess of Taal">Amelinda Hertwier - Priestess of Taal</option>
+                            <option value="Lotti Babkina - Landlady of The River Run">Lotti Babkina - Landlady of The River Run</option>
+                            <option value="Olena Genezzo - Apothecary">Olena Genezzo - Apothecary</option>
+                            <option value="Jaime de Sabatin - Bretonnian Tomb Robber">Jaime de Sabatin - Bretonnian Tomb Robber</option>
+                            <option value="Wyldaroc Fleetrider - Wood Elf Bard">Wyldaroc Fleetrider - Wood Elf Bard</option>
+                            <option value="Malko Matasca - Druid">Malko Matasca - Druid</option>
+                            <option value="Gruginn Dokrilson - Imperial Dwarf Smuggler">Gruginn Dokrilson - Imperial Dwarf Smuggler</option>
+                            <option value="Valda Kracht - Sigmarite Heretic">Valda Kracht - Sigmarite Heretic</option>
+                        </select>
+                        <button onclick="addContact()">Add Contact</button>
+                        <div id="contacts-list"></div>
+                    </div>
+                    <div>
+                        <strong>Assets</strong><br>
+                        <select id="asset-select" style="width:100%; margin-bottom:8px;">
+                            <option value="Karak Drak Lodge Tavern">Karak Drak Lodge Tavern</option>
+                            <option value="Ancestral Karak Drak Great Hammer">Ancestral Karak Drak Great Hammer</option>
+                            <option value="Warehouse on the Docks">Warehouse on the Docks</option>
+                            <option value="Gromril Mail Shirt">Gromril Mail Shirt</option>
+                            <option value="Dwarven Retinue">Dwarven Retinue</option>
+                            <option value="Gold Reserve in Talagaad">Gold Reserve in Talagaad</option>
+                            <option value="Secret Hideout in the Undercity">Secret Hideout in the Undercity</option>
+                        </select>
+                        <button onclick="addAsset()">Add Asset</button>
+                        <div id="assets-list"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- ARMOUR -->
+            <div class="section" style="grid-column: span 12;">
+                <div class="title">🛡️ ARMOUR & OUTFITS 🛡️</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                    <div><strong>Outfit</strong><br><select id="outfit-select"><option>Lordly Attire</option></select></div>
+                    <div><strong>Armour</strong><br><select id="armour-select" onchange="equipArmour()">
+                        <option value='{"name":"No Armour","bonus":0}'>No Armour (0)</option>
+                        <option value='{"name":"Light Armour","bonus":1}'>Light Armour (+1)</option>
+                        <option value='{"name":"Heavy Armour","bonus":2}'>Heavy Armour (+2)</option>
+                    </select></div>
+                    <div><strong>Shield</strong><br><select id="shield-select" onchange="updateResilience()"><option value="0">No Shield</option><option value="1">Shield (+1)</option></select></div>
+                </div>
+                <div id="equipped-armour" class="equipped">Currently Equipped: No Armour + Lordly Attire + No Shield</div>
+            </div>
+            <!-- WEAPONS -->
+            <div class="section" style="grid-column: span 12;">
+                <div class="title">⚔️ WEAPONS OF THE ANCESTORS — FULL DATABASE WITH TRAITS ⚔️</div>
+                <div class="weapon-grid">
+                    <div class="weapon-box">
+                        <strong>MELEE WEAPONS</strong>
+                        <select id="melee-select" size="10" style="width:100%;"></select>
+                        <button onclick="addWeapon('melee')" style="width:100%; margin-top:5px;">Equip Melee</button>
+                    </div>
+                    <div class="weapon-box">
+                        <strong>RANGED WEAPONS</strong>
+                        <select id="ranged-select" size="10" style="width:100%;"></select>
+                        <button onclick="addWeapon('ranged')" style="width:100%; margin-top:5px;">Equip Ranged</button>
+                    </div>
+                    <div class="weapon-box">
+                        <strong>THROWING WEAPONS</strong>
+                        <select id="throw-select" size="10" style="width:100%;"></select>
+                        <button onclick="addWeapon('throw')" style="width:100%; margin-top:5px;">Equip Throwing</button>
+                    </div>
+                </div>
+                <table id="weapons-table" style="margin-top:15px;">
+                    <thead><tr><th>NAME</th><th>RANGE</th><th>DAMAGE</th><th>HAND</th><th>TRAITS</th><th>ACTION</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <!-- COMBAT -->
+            <div class="section" style="grid-column: span 12;">
+                <div class="title">⚔️ BATTLE FORGE — COMPLETE COMBAT SIMULATOR ⚔️</div>
+                <div style="display:flex; gap:15px; flex-wrap:wrap; align-items:center; background:#1a1209; padding:12px; border:2px solid #8b5a2b;">
+                    <div><strong>Attack Type:</strong><br><select id="attack-type"><option value="melee">Melee (WS)</option><option value="ranged">Ranged (BS)</option><option value="throw">Throwing</option></select></div>
+                    <div><strong>Weapon:</strong><br><select id="combat-weapon" style="width:260px;"></select></div>
+                    <div><strong>Grip:</strong><br><select id="grip-select"><option value="2H">Two-Handed</option><option value="1H">One-Handed</option></select></div>
+                </div>
+                <div style="margin:15px 0; padding:12px; background:#1a1209; border:2px solid #8b5a2b;">
+                    <strong>COMBAT MODIFIERS</strong><br>
+                    <select id="modifier-select">
+                        <option value="3">+3 Dice</option>
+                        <option value="2">+2 Dice</option>
+                        <option value="1" selected>+1 Die</option>
+                        <option value="0">No Modifier</option>
+                        <option value="-1">-1 Die</option>
+                        <option value="-2">-2 Dice</option>
+                        <option value="-3">-3 Dice</option>
+                    </select>
+                    <button onclick="applyModifier()">Apply</button>
+                    <button onclick="clearModifiers()">Clear</button>
+                    <div id="active-modifiers" style="margin-top:10px;"></div>
+                </div>
+                <button onclick="simulateAttack()" style="font-size:18px; padding:12px 30px;">ROLL TO STRIKE!</button>
+                <div id="combat-log" class="log" style="margin-top:12px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // WEAPON DATABASE (unchanged)
+        const meleeWeapons = [
+            {name:"Axe", range:"Close", dmg:"S", hand:"1H/2H", traits:"+1 DMG vs Armour"},
+            {name:"Sword", range:"Close", dmg:"S", hand:"1H", traits:"+1d Defence"},
+            {name:"Warhammer", range:"Close", dmg:"S", hand:"1H", traits:"+1d vs Staggered"},
+            {name:"Greataxe", range:"Close", dmg:"S+3 (2H)/S+1 (1H)", hand:"1H/2H", traits:"-1d Melee (2H), +1 DMG vs Armour"},
+            {name:"Greatsword", range:"Close", dmg:"S+3 (2H)/S+1 (1H)", hand:"1H/2H", traits:"-1d Melee (2H), +1 Defence"},
+            {name:"Greathammer", range:"Close", dmg:"S+3 (2H)/S+1 (1H)", hand:"1H/2H", traits:"-1d Melee (2H), +1d vs Staggered"},
+            {name:"Halberd", range:"Close", dmg:"S+2 (2H)/S+1 (1H)", hand:"1H/2H", traits:"+1 DMG vs Armour"}
+        ];
+        const rangedWeapons = [
+            {name:"Crossbow", range:"Short-Long", dmg:"4", hand:"2H", traits:"+1 DMG vs Armour"},
+            {name:"Handgun", range:"Medium-Long", dmg:"5", hand:"2H", traits:"Ignores Armour"}
+        ];
+        const throwingWeapons = [
+            {name:"Throwing Axe", range:"Short", dmg:"S+1", hand:"1H", traits:"+1 DMG vs Armour"}
+        ];
+        let equippedWeapons = [];
+        let combatModifiers = [];
+        let contacts = [];
+        let assets = [];
+        let equippedArmour = {name: "No Armour", bonus: 0};
+        let equippedShield = 0;
+        function getCharacterName() {
+            return document.getElementById('name').value.trim() || "Thrain Stonehelm";
+        }
+        function populateWeapons() {
+            const meleeSel = document.getElementById('melee-select');
+            meleeWeapons.forEach(w => {
+                const opt = document.createElement('option');
+                opt.text = `${w.name} (${w.dmg})`;
+                opt.value = JSON.stringify(w);
+                meleeSel.add(opt);
+            });
+            const rangedSel = document.getElementById('ranged-select');
+            rangedWeapons.forEach(w => {
+                const opt = document.createElement('option');
+                opt.text = `${w.name} (${w.dmg})`;
+                opt.value = JSON.stringify(w);
+                rangedSel.add(opt);
+            });
+            const throwSel = document.getElementById('throw-select');
+            throwingWeapons.forEach(w => {
+                const opt = document.createElement('option');
+                opt.text = `${w.name} (${w.dmg})`;
+                opt.value = JSON.stringify(w);
+                throwSel.add(opt);
+            });
+        }
+        function addWeapon(type) {
+            let selId = type === 'melee' ? 'melee-select' : type === 'ranged' ? 'ranged-select' : 'throw-select';
+            let sel = document.getElementById(selId);
+            if (!sel.value) return;
+     
+            const weapon = JSON.parse(sel.value);
+            equippedWeapons.push(weapon);
+            const tbody = document.getElementById('weapons-table').getElementsByTagName('tbody')[0];
+            const row = tbody.insertRow();
+            row.innerHTML = `
+                <td>${weapon.name}</td>
+                <td>${weapon.range}</td>
+                <td>${weapon.dmg}</td>
+                <td>${weapon.hand}</td>
+                <td class="trait">${weapon.traits}</td>
+                <td><button onclick="this.parentElement.parentElement.remove()">Unequip</button></td>
+            `;
+            updateCombatWeaponDropdown();
+            log(`Equipped: ${weapon.name}`);
+        }
+        function updateCombatWeaponDropdown() {
+            const select = document.getElementById('combat-weapon');
+            select.innerHTML = '';
+            equippedWeapons.forEach((w, i) => {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.text = w.name;
+                select.add(opt);
+            });
+        }
+        function equipArmour() {
+            const data = JSON.parse(document.getElementById('armour-select').value);
+            equippedArmour = data;
+            updateResilience();
+        }
+        function updateResilience() {
+            const t = parseInt(document.getElementById('t').value) || 5;
+            const total = t + equippedArmour.bonus + equippedShield;
+            document.getElementById('resilience').textContent = total;
+            document.getElementById('equipped-armour').innerHTML =
+                `Currently Equipped: ${equippedArmour.name} + Lordly Attire + Shield (+${equippedShield})`;
+        }
+        function addTalent() {
+            const t = prompt("Enter Talent (e.g. Grudge-Bearer, Hardy):");
+            if (t) {
+                const div = document.getElementById('talents');
+                const entry = document.createElement('div');
+                entry.className = "talent-item";
+                entry.textContent = "• " + t;
+                div.appendChild(entry);
+                log(`Added Talent: ${t}`);
+            }
+        }
+        function rekindleFate() {
+            log("🔥 Fate Rekindled by the Ancestors!");
+        }
+        function addContact() {
+            const val = document.getElementById('contact-select').value;
+            if (val) {
+                contacts.push(val);
+                renderContacts();
+                log(`Added Contact: ${val}`);
+            }
+        }
+        function renderContacts() {
+            const container = document.getElementById('contacts-list');
+            container.innerHTML = contacts.map((c, i) =>
+                `<div class="contact-item">${c} <button onclick="removeContact(${i})">Remove</button></div>`
+            ).join('');
+        }
+        function removeContact(i) {
+            contacts.splice(i, 1);
+            renderContacts();
+        }
+        function addAsset() {
+            const val = document.getElementById('asset-select').value;
+            if (val) {
+                assets.push(val);
+                renderAssets();
+                log(`Added Asset: ${val}`);
+            }
+        }
+        function renderAssets() {
+            const container = document.getElementById('assets-list');
+            container.innerHTML = assets.map((a, i) =>
+                `<div class="asset-item">${a} <button onclick="removeAsset(${i})">Remove</button></div>`
+            ).join('');
+        }
+        function removeAsset(i) {
+            assets.splice(i, 1);
+            renderAssets();
+        }
+        function applyModifier() {
+            const val = parseInt(document.getElementById('modifier-select').value);
+            if (val !== 0) {
+                combatModifiers.push(val);
+                renderModifiers();
+            }
+        }
+        function clearModifiers() {
+            combatModifiers = [];
+            renderModifiers();
+        }
+        function renderModifiers() {
+            const container = document.getElementById('active-modifiers');
+            container.innerHTML = combatModifiers.map((m, i) =>
+                `<span class="modifier">${m > 0 ? '+' : ''}${m}d <button onclick="removeModifier(${i})">X</button></span>`
+            ).join('');
+        }
+        function removeModifier(i) {
+            combatModifiers.splice(i, 1);
+            renderModifiers();
+        }
+        function updateAll() {
+            ['ws','bs','s','t','i','ag','re','fel'].forEach(stat => {
+                const val = document.getElementById(stat).value;
+                const el = document.getElementById(stat + '-pool');
+                if (el) el.textContent = val + 'd';
+            });
+            // ONLY ADDITION: Trigger resilience when T changes
+            updateResilience();
+        }
+        // NEW: Parse weapon damage based on grip
+        function getWeaponDamage(weapon, grip) {
+            if (!weapon.dmg) return 0;
+            const dmgStr = weapon.dmg.toString();
+            if (dmgStr.includes('(')) {
+                const parts = dmgStr.split('/');
+                if (grip === "1H" && parts.length > 1) {
+                    return parseDamage(parts[1]);
+                } else {
+                    return parseDamage(parts[0]);
+                }
+            }
+            return parseDamage(dmgStr);
+        }
+        function parseDamage(str) {
+            const match = str.match(/S\+?(\d*)/i);
+            if (match) return parseInt(match[1]) || 0;
+            const num = parseInt(str);
+            return isNaN(num) ? 0 : num;
+        }
+        function simulateAttack() {
+            const weaponIndex = parseInt(document.getElementById('combat-weapon').value);
+            if (isNaN(weaponIndex)) {
+                log("⚠️ Equip a weapon first!");
+                return;
+            }
+            const weapon = equippedWeapons[weaponIndex];
+            const attackType = document.getElementById('attack-type').value;
+            const grip = document.getElementById('grip-select').value;
+            let baseDice = 4;
+            let successThreshold = 5;
+            if (attackType === "melee") {
+                baseDice = parseInt(document.getElementById('ws').value) || 4;
+            } else if (attackType === "ranged" || attackType === "throw") {
+                baseDice = parseInt(document.getElementById('bs').value) || 3;
+            }
+            let modifierSum = combatModifiers.reduce((sum, mod) => sum + mod, 0);
+            let totalDice = Math.max(0, baseDice + modifierSum);
+            let successes = 0;
+            let rolls = [];
+            for(let i = 0; i < totalDice; i++) {
+                let r = Math.floor(Math.random() * 10) + 1;
+                rolls.push(r);
+                if (r <= successThreshold) successes++;
+            }
+            const strength = parseInt(document.getElementById('s').value) || 4;
+            const weaponDmg = getWeaponDamage(weapon, grip);
+        
+            // Ranged weapons use fixed weapon damage (no Strength)
+            let damage = 0;
+            if (attackType === "melee") {
+                damage = successes > 0 ? (strength + weaponDmg + successes) : 0;
+            } else {
+                // Ranged / Throwing: Weapon damage + successes
+                damage = successes > 0 ? (weaponDmg + successes) : 0;
+            }
+            const typeName = attackType === "melee" ? "Melee (WS)" : attackType === "ranged" ? "Ranged (BS)" : "Throwing";
+            log(`<strong>${typeName} Attack with ${weapon.name} (${grip})</strong><br>
+                 Base: ${baseDice} + Modifiers (${combatModifiers.join(', ')}) = <strong>${totalDice} dice</strong><br>
+                 Rolls: [${rolls.join(', ')}] → <strong>${successes} Successes</strong><br>
+                 <strong>Damage: ${damage}</strong> (${attackType === "melee" ? "Strength + " : ""}Weapon(${weaponDmg}) + Successes)`);
+        }
+        function log(msg) {
+            const name = getCharacterName();
+            const logEl = document.getElementById('combat-log');
+            logEl.innerHTML += `<div>${new Date().toLocaleTimeString()} — ${name}: ${msg}</div>`;
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+        // ==================== FIXED SAVE & LOAD (Toughness + Armour linkage) ====================
+        function saveCharacter() {
+            const data = {
+                name: document.getElementById('name').value,
+                ws: document.getElementById('ws').value,
+                bs: document.getElementById('bs').value,
+                s: document.getElementById('s').value,
+                t: document.getElementById('t').value,
+                i: document.getElementById('i').value,
+                ag: document.getElementById('ag').value,
+                re: document.getElementById('re').value,
+                fel: document.getElementById('fel').value,
+                fate: document.getElementById('fate').value,
+                talents: Array.from(document.getElementById('talents').children).map(el => el.textContent.replace('• ', '')),
+                contacts: contacts,
+                assets: assets,
+                equippedArmour: equippedArmour,
+                equippedShield: equippedShield,
+                equippedWeapons: equippedWeapons
+            };
+            localStorage.setItem('kharakNobleSave', JSON.stringify(data));
+            log("💾 Character saved successfully!");
+        }
+        function loadCharacter() {
+            const saved = localStorage.getItem('kharakNobleSave');
+            if (!saved) {
+                log("No saved character found.");
+                return;
+            }
+            const data = JSON.parse(saved);
+          
+            // Load stats
+            document.getElementById('name').value = data.name || "Thrain Stonehelm";
+            if (data.ws !== undefined) document.getElementById('ws').value = data.ws;
+            if (data.bs !== undefined) document.getElementById('bs').value = data.bs;
+            if (data.s !== undefined) document.getElementById('s').value = data.s;
+            if (data.t !== undefined) document.getElementById('t').value = data.t;
+            if (data.i !== undefined) document.getElementById('i').value = data.i;
+            if (data.ag !== undefined) document.getElementById('ag').value = data.ag;
+            if (data.re !== undefined) document.getElementById('re').value = data.re;
+            if (data.fel !== undefined) document.getElementById('fel').value = data.fel;
+            if (data.fate !== undefined) document.getElementById('fate').value = data.fate;
+
+            // Load talents
+            document.getElementById('talents').innerHTML = '';
+            if (data.talents && data.talents.length) {
+                data.talents.forEach(t => {
+                    const div = document.createElement('div');
+                    div.className = "talent-item";
+                    div.textContent = "• " + t;
+                    document.getElementById('talents').appendChild(div);
+                });
+            }
+
+            contacts = data.contacts || [];
+            assets = data.assets || [];
+            equippedArmour = data.equippedArmour || {name: "No Armour", bonus: 0};
+            equippedShield = data.equippedShield || 0;
+            equippedWeapons = data.equippedWeapons || [];
+
+            // Rebuild weapons table
+            const tbody = document.getElementById('weapons-table').getElementsByTagName('tbody')[0];
+            tbody.innerHTML = '';
+            equippedWeapons.forEach(weapon => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${weapon.name}</td>
+                    <td>${weapon.range}</td>
+                    <td>${weapon.dmg}</td>
+                    <td>${weapon.hand}</td>
+                    <td class="trait">${weapon.traits}</td>
+                    <td><button onclick="this.parentElement.parentElement.remove()">Unequip</button></td>
+                `;
+            });
+
+            // Force resilience update after T and armour are loaded
+            updateResilience();
+            renderContacts();
+            renderAssets();
+            updateCombatWeaponDropdown();
+            updateAll();
+            log("📂 Character loaded successfully! (Toughness + Armour now linked)");
+        }
+        window.onload = () => {
+            populateWeapons();
+            updateAll();
+            renderContacts();
+            renderAssets();
+            log("Welcome, Thrain Stonehelm. Save & Load feature added.");
+        };
+    </script>
+</body>
+</html>
