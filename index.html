@@ -122,15 +122,16 @@
             .header { font-size: 26px; padding-bottom: 10px; margin-bottom: 15px; }
             .grid { grid-template-columns: 1fr !important; gap: 12px; }
             .section { padding: 10px; }
-            .title { font-size: 17px; padding: 8px; margin: -10px -10px 10px; }
+            .title { font-size: 16px; padding: 8px; margin: -10px -10px 10px; }
             .weapon-grid { grid-template-columns: 1fr !important; }
-            table { font-size: 13px; }
-            th, td { padding: 5px; }
-            .log { height: 260px; font-size: 13px; }
-            input, select, textarea, button { font-size: 16px; padding: 10px; }
+            table { font-size: 12px; }
+            th, td { padding: 4px; }
+            .log { height: 240px; font-size: 12.5px; }
+            input, select, textarea, button { font-size: 15px; padding: 9px; }
             .dice-pool { font-size: 20px; }
             .stat-box { font-size: 16px; }
-            select[size="10"] { height: 160px; }
+            select[size="10"] { height: 140px; }
+            .grid > .section { grid-column: span 12 !important; }
         }
     </style>
 <link rel="manifest" href="manifest.json">
@@ -353,7 +354,7 @@
             let selId = type === 'melee' ? 'melee-select' : type === 'ranged' ? 'ranged-select' : 'throw-select';
             let sel = document.getElementById(selId);
             if (!sel.value) return;
-   
+  
             const weapon = JSON.parse(sel.value);
             equippedWeapons.push(weapon);
             const tbody = document.getElementById('weapons-table').getElementsByTagName('tbody')[0];
@@ -516,7 +517,7 @@
             }
             const strength = parseInt(document.getElementById('s').value) || 4;
             const weaponDmg = getWeaponDamage(weapon, grip);
-      
+     
             let damage = 0;
             if (attackType === "melee") {
                 damage = successes > 0 ? (strength + weaponDmg + successes) : 0;
@@ -564,7 +565,7 @@
                 return;
             }
             const data = JSON.parse(saved);
-        
+       
             document.getElementById('name').value = data.name || "Thrain Stonehelm";
             if (data.ws !== undefined) document.getElementById('ws').value = data.ws;
             if (data.bs !== undefined) document.getElementById('bs').value = data.bs;
