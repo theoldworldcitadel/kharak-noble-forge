@@ -1,8 +1,8 @@
 {
   "name": "Kharak-Noble Forge",
   "short_name": "Kharak Forge",
-  "description": "Ultimate Dwarf Noble Character Sheet & Combat Simulator for Warhammer: The Old World RPG",
-  "start_url": "/index.html",
+  "description": "Dwarf Noble Character Sheet & Combat Simulator - Warhammer The Old World",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#1a1209",
   "theme_color": "#d4af37",
@@ -18,6 +18,5 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ],
-  "categories": ["games", "entertainment", "rpg"]
+  ]
 }

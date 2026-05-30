@@ -114,7 +114,6 @@
             height: 220px;
             font-size: 14px;
         }
-
         /* ==================== STRONG MOBILE FIX ==================== */
         @media (max-width: 768px) {
             body { padding: 8px; }
@@ -354,7 +353,7 @@
             let selId = type === 'melee' ? 'melee-select' : type === 'ranged' ? 'ranged-select' : 'throw-select';
             let sel = document.getElementById(selId);
             if (!sel.value) return;
-  
+ 
             const weapon = JSON.parse(sel.value);
             equippedWeapons.push(weapon);
             const tbody = document.getElementById('weapons-table').getElementsByTagName('tbody')[0];
@@ -565,7 +564,7 @@
                 return;
             }
             const data = JSON.parse(saved);
-       
+      
             document.getElementById('name').value = data.name || "Thrain Stonehelm";
             if (data.ws !== undefined) document.getElementById('ws').value = data.ws;
             if (data.bs !== undefined) document.getElementById('bs').value = data.bs;
@@ -617,6 +616,17 @@
             renderAssets();
             log("Welcome, Thrain Stonehelm. Save & Load feature added.");
         };
+    </script>
+
+    <!-- PWA FIX: Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker registered successfully'))
+                    .catch(err => console.log('Service Worker registration failed:', err));
+            });
+        }
     </script>
 </body>
 </html>
